@@ -105,14 +105,15 @@ class TSPBase:
             self._running.value = value
 
     def start_gui(self):
-        # Start the event loop for TSPBase in a separate thread
+        """
+        Starts the event loop for TSPBase in a separate thread.
+        Afterward, it starts the visualizer in the main thread
+        """
         self.start_event_loop()
-
-        # Start the visualizer in the main thread
         self.visualizer.run()
 
     def start_event_loop(self):
-        # Start the event loop for TSPBase in a separate thread
+        """Start the event loop for TSPBase in a separate thread"""
         if self.event_loop_thread is None or not self.event_loop_thread.is_alive():
             self.event_loop_thread = threading.Thread(target=self.event_loop)
             self.event_loop_thread.start()
@@ -162,16 +163,24 @@ class TSPBase:
             print(f"Exception in event_loop: {e}")
 
     def toggle_run(self, button):
+        """Changes the text of the passed button and the internal requested variable to indicate a stop."""
         button.text = "Run" if button.text == "Stop" else "Stop"
         self.requested = not self.requested
 
     def close(self):
+        """Stops TSPBase completely as well as soft-stopping the visualizer."""
         self.stop()
         self.loop_active = False
         if self.visualizer.running:
             self.visualizer.stop()
 
     def start(self, debug_mode: bool = False):
+        """
+        Starts the solution (worker) in a separate thread or process.
+
+        Arguments:
+            debug_mode -- If true, it starts the worker in a new thread instead of a new process so prints work.
+        """
         self.current_length = sum([self.graph[point][self.points[(i + 1) % len(self.points)]]
                                    for i, point in enumerate(self.points)])
         self.current_path = self.points + [self.points[0]]
@@ -185,6 +194,7 @@ class TSPBase:
         self.worker_process.start()
 
     def stop(self):
+        """Stops TSPBase, if running or not and joins the worker thread or process."""
         self.running = 0
         self.requested = None
 
@@ -193,7 +203,7 @@ class TSPBase:
             self.worker_process = None
 
     def create_initial_task(self):
-        # Create and return the initial task data
+        """Create and return the initial task data"""
         return ()
 
     def worker(self, num_update_interval: int = 1000, sol_update_interval: int = 10000):
@@ -229,11 +239,13 @@ class TSPBase:
                 time.sleep(0.01)
 
     def is_final_solution(self):
+        """Returns true if the task queue is empty"""
         if self.local_task_queue.empty():
             return True
         return False
 
     def process_task(self, task: tuple) -> bool:
+        """Splits a task tuple into it's components and executes them."""
         function, args, kwargs = task
         return function(*args, **kwargs)
 
@@ -272,7 +284,15 @@ class TSPBase:
             cost += route[i].distance_to(route[(i + 1) % len(route)])
         return cost
 
-    def update_solution(self, new_solution, new_length: int = None, update_last: bool = True):
+    def update_solution(self, new_solution: list, new_length: int = None, update_last: bool = True):
+        """
+        Takes care of all the stuff needed to properly update the solution.
+
+        Arguments:
+            new_solution -- a list of Point objects
+            new_length -- optional already calculated length of new_solution, if not passed it will be calculated
+            update_last -- if the first point should be appended as the last to properly display it.
+        """
         if not new_length:
             new_length = 0
             for i in range(len(new_solution) - 1):
@@ -299,6 +319,14 @@ class TSPBase:
                 self.toggle_run(self.run_button)
 
     def regenerate_points(self, _, reset_text: bool = True):
+        """
+        Replace all current points with new ones randomly generated with the same length as the old points list,
+        it also stops the worker if it's currently running.
+
+        Arguments:
+            _ -- Unused button argument
+            reset_text -- If set to true, it resets the text to display 0 for all stats.
+        """
         self.points = self.generate_random_points_2d((self.visualizer.width, self.visualizer.height), len(self.points))
         self.visualizer.replace_points(self.points.copy())
         if self.running:
@@ -316,6 +344,7 @@ class TSPBase:
             self.time_passed_text.update_text("Time passed: 00:00:00.000000")
 
     def next_solution(self, _):
+        """Stops the current TSPBase object and raises a keyboard interrupt."""
         self.loop_active = False
         if self.event_loop_thread:
             self.event_loop_thread.join()
@@ -323,6 +352,7 @@ class TSPBase:
         raise KeyboardInterrupt
 
     def quit(self, _=None):
+        """Stops the current TSPBase object, hard stops the visualizer and exits using sys.exit(0)."""
         self.close()
         self.loop_active = False
         sys.exit(0)

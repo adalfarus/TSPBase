@@ -12,15 +12,23 @@ class Point:
     x: int = 0
     y: int = 0
 
-    def distance_to(self, other) -> float:
+    def distance_to(self, other: "Point") -> float:
+        """
+        Calculate Euclidean/Pythagorean distance between two Point instances, using the standard math module.
+
+        Arguments:
+            other -- a Point instance
+        """
+        if not isinstance(other, Point):
+            raise NotImplementedError("This function only supports Point objects.")
         return math.dist([self.x, self.y], [other.x, other.y])
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Point"):
         if not isinstance(other, Point):
             return NotImplemented
         return (self.x, self.y) < (other.x, other.y)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: "Point") -> bool:
         if not isinstance(other, Point):
             return NotImplemented
         return self.x == other.x and self.y == other.y
@@ -32,18 +40,37 @@ class Point:
         return f"Point(x: {self.x}, y: {self.y})"
 
 
-def calculate_num_solution(n: int = 8):  # Calculates the number of unique solutions
+def calculate_num_solution(n: int = 8) -> int:  # Calculates the number of unique solutions
+    """
+    Calculate the number of unique solutions for a given TSP length. The calculation is fac(n-1) // 2.
+
+    Arguments:
+        n -- number of points for the TSP
+    """
     return math.factorial(n-1) // 2
 
 
-def create_graph(points):  # Creates a data-structure that has the distance of any point to any point
+def create_graph(points: list) -> dict:  # Creates a data-structure that has the distance of any point to any point
+    """
+    Creates a dictionary of dictionaries that contains the distance from all points to all points except itself.
+
+    Arguments:
+        points -- an iterator with Point instances or something similar
+    """
     graph = {}
     for point in points:
         graph[point] = {other: point.distance_to(other) for other in points if other != point}
     return graph
 
 
-def prims_algorithm(graph, start_vertex):
+def prims_algorithm(graph: dict, start_vertex: Point) -> list:
+    """
+    Standard prims algorithm, connect the lowest cost edge reachable, it's an MST algorithm.
+
+    Arguments:
+        graph -- a graph created using the create_graph function or similar
+        start_vertex -- the start point of the algorithm
+    """
     mst = []  # Works by finding the smallest cost edge connected to the current route
     visited = {start_vertex}
     edges = [(cost, start_vertex, to) for to, cost in graph[start_vertex].items()]
@@ -62,7 +89,14 @@ def prims_algorithm(graph, start_vertex):
     return mst
 
 
-def one_tree_lower_bound(graph, points):
+def one_tree_lower_bound(graph: dict, points: list) -> float:
+    """
+    Uses the function prims_algorithm to create all possible one trees and then chooses the highest cost one.
+
+    Arguments:
+        graph -- a graph created using the create_graph function or similar
+        points -- the points used for the graph
+    """
     highest_cost = 0
 
     for point in points:

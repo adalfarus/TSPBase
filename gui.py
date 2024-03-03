@@ -54,6 +54,12 @@ class DynamicText:
         self.last_rendered_rect = None
 
     def update_text(self, new_text):
+        """
+        Updates the currently displayed text.
+
+        Arguments:
+            new_text -- can be anything convertible into a string
+        """
         # Update the text only if it has changed
         if new_text != self.last_rendered_text:
             self.text = str(new_text)
@@ -83,8 +89,8 @@ class DynamicText:
 
 
 class TSPVisualizer:
-    def __init__(self, points, stop_callback, hard_stop_callback, input_callback, input_start,
-                 width=800, height=600, title='Traveling Salesman Problem'):
+    def __init__(self, points: list, stop_callback: callable, hard_stop_callback: callable, input_callback: callable,
+                 input_start, width: int = 800, height: int = 600, title: str = 'Traveling Salesman Problem'):
         pygame.init()
         self.points = points
         self.width = width
@@ -109,19 +115,40 @@ class TSPVisualizer:
         self.input = str(input_start) or ""
         self.running = False
 
-    def add_dynamic_text(self, text, position):
+    def add_dynamic_text(self, text: str, position: tuple) -> DynamicText:
+        """
+        Automatically creates a dynamic text object, integrates it into the visualizer and returns it.
+
+        Arguments:
+            text -- initial text to display
+            position -- tuple with x and y
+        """
         dynamic_text = DynamicText(position, text, self.font, visualizer=self)
         self.dynamic_texts.append(dynamic_text)
         self.mark_dirty(pygame.Rect(dynamic_text.position, dynamic_text.font.size(dynamic_text.text)))
         return dynamic_text  # Returns the object so the content can be manipulated later
 
-    def add_button(self, rect: tuple, text, callback):
+    def add_button(self, rect: tuple, text: str, callback: callable) -> Button:
+        """
+        Automatically creates a button object, integrates it into the visualizer and returns it.
+
+        Arguments:
+            rect -- Four integers, x, y, width, height
+            text -- initial text to display
+            callback -- the function the button should call when being pressed (passes the button as the first argument)
+        """
         button = Button(pygame.Rect(*rect), text, callback, visualizer=self)
         self.buttons.append(button)
         self.mark_dirty(button.rect)
         return button  # Returns the object so the content can be manipulated later
 
-    def replace_points(self, new_points):
+    def replace_points(self, new_points: list):
+        """
+        Replaces the current points, this triggers a full redraw, so don't do it unnecessarily often.
+
+        Arguments:
+            new_points -- list of Point objects or similar
+        """
         self.points = new_points
         self.set_current_path([])  # Clears the old path
         self.dirty_rects = []  # Clear dirty rects and force full redraw
@@ -131,18 +158,32 @@ class TSPVisualizer:
         if rect not in self.dirty_rects:
             self.dirty_rects.append(rect)
 
-    def set_current_path(self, path):
-        """Update the current path to be drawn."""
+    def set_current_path(self, path: list):
+        """
+        Update the current path to be drawn.
+
+        Arguments:
+            path -- A list of Point objects, has to be a subset of the current points, otherwise it won't be displayed.
+        """
         self.current_path = path
         self.dirty_rects = []  # Clear dirty rects and force full redraw
         self.mark_entire_screen_dirty()  # Method to redraw the whole screen
 
     def hard_stop(self, _=None):
+        """
+        Stops the visualizer, uninitializes all pygame modules and calls the hard stop callback.
+
+        Arguments:
+            _ -- an ignored passes button that defaults to None
+        """
         self.running = False
         pygame.quit()
         self.hard_stop_callback()
 
     def stop(self):
+        """
+        Stops the visualizer and calls the stop callback.
+        """
         self.running = False
         self.stop_callback()
 
@@ -169,6 +210,7 @@ class TSPVisualizer:
             self.mark_entire_screen_dirty()
 
     def run(self):
+        """Starts the visualizer and is blocking."""
         self.running = True
         while self.running:
             self.handle_events()
@@ -263,7 +305,7 @@ if __name__ == "__main__":
     example_points = [Point(100, 100), Point(200, 300), Point(300, 300), Point(500, 300)]
     # Give it a run callback function (what to call when the run or the stop button is pressed)
     # as well as the randomly generated points (cities)
-    visualizer = TSPVisualizer(example_points, test.stop)
+    visualizer = TSPVisualizer(example_points, test.stop, test.stop, test.stop, test.stop)
 
     # How to add text
     current_length = visualizer.add_dynamic_text("HELL", (0, 0))
