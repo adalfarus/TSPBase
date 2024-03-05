@@ -40,6 +40,72 @@ class Point:
         return f"Point(x: {self.x}, y: {self.y})"
 
 
+@dataclass
+class AdvPoint:
+    x: int = 0
+    y: int = 0
+    z: int = None
+    v: int = None
+    floating: bool = False
+
+    def distance_to(self, other: "AdvPoint") -> float:
+        """
+        Calculate Euclidean/Pythagorean distance between two Point instances, using the standard math module.
+
+        Arguments:
+            other -- a Point instance
+        """
+        if not isinstance(other, AdvPoint):
+            raise TypeError("This function only supports Point objects.")
+
+        self_coords = [self.x, self.y] + ([self.z] if self.z is not None else []) + (
+            [self.v] if self.v is not None else [])
+        other_coords = [other.x, other.y] + ([other.z] if other.z is not None else []) + (
+            [other.v] if other.v is not None else [])
+
+        return math.dist(self_coords, other_coords)
+
+    def __lt__(self, other: "AdvPoint"):
+        if not isinstance(other, AdvPoint):
+            return NotImplemented
+
+        self_vals = (
+        self.x, self.y, self.z if self.z is not None else float('inf'), self.v if self.v is not None else float('inf'))
+        other_vals = (other.x, other.y, other.z if other.z is not None else float('inf'),
+                      other.v if other.v is not None else float('inf'))
+
+        return self_vals < other_vals
+
+    def __eq__(self, other: "AdvPoint") -> bool:
+        if not isinstance(other, AdvPoint):
+            return NotImplemented
+
+        return (self.x, self.y, self.z, self.v) == (other.x, other.y, other.z, other.v)
+
+    def __hash__(self):
+        return hash((self.x, self.y, self.z, self.v))
+
+    def __getitem__(self, key):
+        attributes = ('x', 'y', 'z', 'v')
+        if 0 <= key < len(attributes):
+            value = getattr(self, attributes[key])
+            if value is not None:
+                return value
+            else:
+                raise IndexError(f"Attribute '{attributes[key]}' is not set")
+        else:
+            raise IndexError("Point index out of range")
+
+    def __repr__(self) -> str:
+        cls_name = "Point(" if not self.floating else "FloatingPoint("
+        parts = [f"x: {self.x}", f"y: {self.y}"]
+        if self.z is not None:
+            parts.append(f"z: {self.z}")
+        if self.v is not None:
+            parts.append(f"v: {self.v}")
+        return cls_name + ", ".join(parts) + ")"
+
+
 def calculate_num_solution(n: int = 8) -> int:  # Calculates the number of unique solutions
     """
     Calculate the number of unique solutions for a given TSP length. The calculation is fac(n-1) // 2.

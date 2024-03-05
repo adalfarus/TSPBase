@@ -5,6 +5,7 @@
 import time
 from tsp_base import TSPBase
 import random
+import math
 
 
 class WanderingSalesmanPersistent(TSPBase):
@@ -623,3 +624,36 @@ if __name__ == "__main__":
     #    NeighborhoodSalesmanNetwork(10)
     #except KeyboardInterrupt:
     #    print("Continuing with next solution ...")
+
+
+class RounderBouter(TSPBase):
+    def __init__(self, num_points: int = 10):
+        super().__init__(num_points, title_text_add_in=" Connect outer Points")
+
+    @staticmethod
+    def calculate_angle_and_distance_from_center(point, center):
+        dx = point.x - center[0]
+        dy = point.y - center[1]
+        angle = math.atan2(dy, dx)
+        distance = math.sqrt(dx ** 2 + dy ** 2)
+        return angle, distance
+
+    def create_initial_task(self):
+        return self.solve, (), {}
+
+    def solve(self):
+        # Calculate the centroid as the reference point
+        centroid = (sum(p.x for p in self.points) / len(self.points),
+                    sum(p.y for p in self.points) / len(self.points))
+
+        # Sort points by angle and then by distance from the centroid
+        sorted_points = sorted(self.points, key=lambda p: self.calculate_angle_and_distance_from_center(p, centroid))
+        self.update_solution(sorted_points)
+        return True
+
+
+if __name__ == "__main__":
+    try:
+        RounderBouter(10)
+    except KeyboardInterrupt:
+        print("Continuing with next solution ...")
