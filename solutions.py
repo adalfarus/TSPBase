@@ -649,6 +649,7 @@ class RounderBouter(TSPBase):
         # Sort points by angle and then by distance from the centroid
         sorted_points = sorted(self.points, key=lambda p: self.calculate_angle_and_distance_from_center(p, centroid))
         self.update_solution(sorted_points)
+        self.local_solutions_checked += 1
         return True
 
 
