@@ -8,6 +8,8 @@
 For now look into solutions.py to see how to implement an algorithm
 
 # Compatibility
-- Windows 🟢 (Works perfectly)
-- MacOS 🟡 (Untested)
+[🟢 (Works perfectly); 🟡 (Untested); 🟠 (Some Issues); 🔴 (Unusable)]
+
+- Windows 🟠 (Python updates and hacky solutions make it freeze up)
+- MacOS 🟡
 - Linux [Ubuntu 22.04 LTS] 🔴 (Freezes computer)
