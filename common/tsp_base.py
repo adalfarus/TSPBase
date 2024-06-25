@@ -5,12 +5,12 @@
 import threading
 import time
 from queue import Queue
-from timid_timer import TimidTimer
+from .timid_timer import TimidTimer
 from random import randint
-from common import calculate_num_solution, Point, one_tree_lower_bound, create_graph
+from .common import calculate_num_solution, Point, one_tree_lower_bound, create_graph
 import multiprocessing
 if multiprocessing.current_process().name == 'MainProcess':
-    from gui import TSPVisualizer
+    from .gui import TSPVisualizer
 import itertools
 import sys
 

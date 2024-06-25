@@ -3,7 +3,7 @@
 # TPSBase.
 # ------------------------------------------------------
 import time
-from tsp_base import TSPBase
+from common.tsp_base import TSPBase
 import random
 import math
 

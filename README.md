@@ -10,6 +10,6 @@ For now look into solutions.py to see how to implement an algorithm
 # Compatibility
 [🟢 (Works perfectly); 🟡 (Untested); 🟠 (Some Issues); 🔴 (Unusable)]
 
-- Windows 🟠 (Python updates and hacky solutions make it freeze up)
+- Windows 🟢 (Works fine but hacky solutions could brick it in the future)
 - MacOS 🟡
 - Linux [Ubuntu 22.04 LTS] 🔴 (Freezes computer)

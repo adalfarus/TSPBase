@@ -2,7 +2,7 @@
 # Uses pygame to create a TSP solution window that can
 # be kitted out with changing text and buttons.
 # ------------------------------------------------------
-from common import Point
+from .common import Point
 import pygame
 
 
